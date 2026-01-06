@@ -1,14 +1,19 @@
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes, api_view
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from .models import Task
 import json
 
-@csrf_exempt
-@require_http_methods(['GET', 'POST'])
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def tasks_view(request):
+    user = request.user
+    print(user)
+
     if request.method == 'GET':
-        tasks = Task.objects.all().values(
+        tasks = Task.objects.all(user_id=user.id).values(
             "id",
             "title",
             "status",
